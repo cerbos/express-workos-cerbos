@@ -28,7 +28,9 @@ WORKOS_CONNECTION_ID=
 CERBOS_HOSTNAME=https://demo-pdp.cerbos.cloud
 CERBOS_PLAYGROUND=ygW612cc9c9xXOsOZjI40ovY2LZvXf43
 ```
-You can find the WorkOS values in your dashboard. The Cerbos Demo PDP is being used for this example, but in production you would want to connect to your instance.
+You can find the WorkOS values in your dashboard.
+
+> This example is using the hosted Demo PDP of Cerbos and an example Playground instance. If you are running your own Cerbos PDP then update the `CERBOS_HOSTNAME` field to your own instance and remove the `CERBOS_PLAYGROUND` field.
 
 3. Start the express server
 
@@ -38,7 +40,7 @@ node index.js
 
 4. Test the App
 
-Open your browser to [http://localhost:8000](http://localhost:8000) to test the login flow from the UI.
+Now that everything is wired up you should be able to goto [http://localhost:8000](http://localhost:8000) and press the login link to authenticate with your WorkOS account.
 
 ## Policies
 

@@ -21,13 +21,6 @@ const cerbos = new Cerbos({
 app.set("views", "./views");
 app.set("view engine", "pug");
 app.use(logger("dev"));
-app.use(
-  session({
-    secret: "keyboard cat",
-    resave: false,
-    saveUninitialized: true,
-  })
-);
 
 app.get("/auth", (_req, res) => {
   const connection = process.env.WORKOS_CONNECTION_ID;
@@ -50,47 +43,39 @@ app.get("/callback", async (req, res) => {
     clientID,
   });
 
-  req.session.profile = profile;
-  req.session.save();
+  const contacts = db.find(req.params.id);
+  const cerbosRequest = {
+    principal: {
+      id: profile.id,
+      roles: ["user"],
+      attr: profile.raw_attributes,
+    },
+    resource: {
+      kind: "contact",
+      instances: contacts.reduce(function (result, item, index, array) {
+        result[item.id] = { attr: item }; //a, b, c
+        return result;
+      }, {}),
+    },
+    actions: ["read", "update", "delete"],
+  };
+  // check user is authorized
+  const cerbosResponse = await cerbos.check(cerbosRequest);
 
-  // Use the information in `profile` for further business logic.
-  res.redirect("/");
+  res.render("index-loggedin", {
+    title: "Cerbos/WorkOS Demo",
+    subtitle: `Logged in as ${profile.email}`,
+    user: profile,
+    cerbosRequest,
+    cerbosResponse,
+  });
 });
 
 app.get("/", async (req, res) => {
-  if (req.session.profile) {
-    const contacts = db.find(req.params.id);
-    const cerbosRequest = {
-      principal: {
-        id: req.session.profile.id,
-        roles: ["user"],
-        attr: req.session.profile.raw_attributes,
-      },
-      resource: {
-        kind: "contact",
-        instances: contacts.reduce(function (result, item, index, array) {
-          result[item.id] = { attr: item }; //a, b, c
-          return result;
-        }, {}),
-      },
-      actions: ["read", "update", "delete"],
-    };
-    // check user is authorized
-    const cerbosResponse = await cerbos.check(cerbosRequest);
-
-    res.render("index-loggedin", {
-      title: "Cerbos/WorkOS Demo",
-      subtitle: `Logged in as ${req.session.profile.email}`,
-      user: req.session.profile,
-      cerbosRequest,
-      cerbosResponse,
-    });
-  } else {
-    res.render("index-loggedout", {
-      title: "Cerbos/WorkOS Demo",
-      subtitle: `Not logged in`,
-    });
-  }
+  res.render("index-loggedout", {
+    title: "Cerbos/WorkOS Demo",
+    subtitle: `Not logged in`,
+  });
 });
 
 app.listen(process.env.PORT, () => {

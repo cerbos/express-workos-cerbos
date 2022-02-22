@@ -3,7 +3,7 @@ const express = require("express");
 const { WorkOS } = require("@workos-inc/node");
 const logger = require("morgan");
 const session = require("express-session");
-const { Cerbos } = require("cerbos");
+const { Cerbos } = require("@cerbos/sdk");
 const db = require("./db.js");
 
 dotenv.config();

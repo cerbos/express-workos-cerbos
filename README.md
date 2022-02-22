@@ -1,4 +1,4 @@
-# express-auth0-cerbos
+# express-workos-cerbos
 
 An example application of integrating [Cerbos](https://cerbos.dev) with an [Express](https://expressjs.com/) server using [WorkOS](https://workos.com/) for authentication.
 

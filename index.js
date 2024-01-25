@@ -26,7 +26,7 @@ app.get("/auth", (_req, res) => {
   const connection = process.env.WORKOS_CONNECTION_ID;
   const redirectURI = `http://localhost:${process.env.PORT}/callback`;
 
-  const authorizationURL = workos.sso.getAuthorizationURL({
+  const authorizationURL = workos.sso.getAuthorizationUrl({
     clientID: clientID,
     redirectURI: redirectURI,
     connection: connection,

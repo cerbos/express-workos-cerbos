@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 
 const workos = new WorkOS(process.env.WORKOS_API_KEY);
-const clientID = process.env.WORKOS_CLIENT_ID;
+const clientId = process.env.WORKOS_CLIENT_ID;
 
 const cerbos = new Cerbos({
   hostname: process.env.CERBOS_HOSTNAME, // The Cerbos PDP instance
@@ -23,32 +23,34 @@ app.set("view engine", "pug");
 app.use(logger("dev"));
 
 app.get("/auth", (_req, res) => {
-  const connection = process.env.WORKOS_CONNECTION_ID;
-  const redirectURI = `http://localhost:${process.env.PORT}/callback`;
+  const redirectUri = `http://localhost:${process.env.PORT}/callback`;
+  const authorizationUrl = workos.userManagement.getAuthorizationUrl({
+    // Specify that we'd like AuthKit to handle the authentication flow
+    provider: "authkit",
 
-  const authorizationURL = workos.sso.getAuthorizationUrl({
-    clientID: clientID,
-    redirectURI: redirectURI,
-    connection: connection,
+    // The callback endpoint that WorkOS will redirect to after a user authenticates
+    redirectUri,
+    clientId,
   });
 
-  res.redirect(authorizationURL);
+  // Redirect the user to the AuthKit sign-in page
+  res.redirect(authorizationUrl);
 });
 
 app.get("/callback", async (req, res) => {
   const { code } = req.query;
 
-  const { profile } = await workos.sso.getProfileAndToken({
+  const { user } = await workos.userManagement.authenticateWithCode({
     code,
-    clientID,
+    clientId,
   });
 
   const contacts = db.find(req.params.id);
   const cerbosRequest = {
     principal: {
-      id: profile.id,
+      id: user.id,
       roles: ["user"],
-      attr: profile.raw_attributes,
+      attr: user,
     },
     resource: {
       kind: "contact",
@@ -64,8 +66,8 @@ app.get("/callback", async (req, res) => {
 
   res.render("index-loggedin", {
     title: "Cerbos/WorkOS Demo",
-    subtitle: `Logged in as ${profile.email}`,
-    user: profile,
+    subtitle: `Logged in as ${user.email}`,
+    user,
     cerbosRequest,
     cerbosResponse,
   });

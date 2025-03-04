@@ -2,8 +2,7 @@ const dotenv = require("dotenv");
 const express = require("express");
 const { WorkOS } = require("@workos-inc/node");
 const logger = require("morgan");
-const session = require("express-session");
-const { Cerbos } = require("@cerbos/sdk");
+const { GRPC } = require("@cerbos/grpc");
 const db = require("./db.js");
 
 dotenv.config();
@@ -13,10 +12,13 @@ const app = express();
 const workos = new WorkOS(process.env.WORKOS_API_KEY);
 const clientId = process.env.WORKOS_CLIENT_ID;
 
-const cerbos = new Cerbos({
-  hostname: process.env.CERBOS_HOSTNAME, // The Cerbos PDP instance
-  playgroundInstance: process.env.CERBOS_PLAYGROUND, // The playground instance ID to test
-});
+const cerbos = new GRPC(
+  process.env.CERBOS_HOSTNAME, // The Cerbos PDP instance
+  {
+    tls: true,
+    playgroundInstance: process.env.CERBOS_PLAYGROUND, // The playground instance ID to test
+  }
+);
 
 app.set("views", "./views");
 app.set("view engine", "pug");

@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@cerbos/grpc": "^0.25.0",
-    "@workos-inc/node": "^8.0.0",
+    "@workos-inc/node": "^9.0.0",
     "dotenv": "^16.0.0",
     "express": "^5.0.0",
     "express-session": "^1.17.2",
